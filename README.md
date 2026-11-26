@@ -165,6 +165,18 @@ Polling `GET /{id}` with `If-None-Match` is the alternative for clients that can
 
 `SqliteJobStore(path, events_kept=100)` creates the database file and its directory. `MemoryJobStore()` is the same store in memory, for tests and single-process hosts.
 
+## Releases and versions
+
+Every push to `main` is tested and then released by [semantic-release](https://github.com/semantic-release/semantic-release) (`.github/workflows/release.yml`): the Conventional Commit messages since the last release decide the next version (`fix:` patch, `feat:` minor, a breaking change major; `chore:`, `docs:`, `ci:`, `test:` and `refactor:` release nothing). It creates the tag `vX.Y.Z` and a GitHub release with the release notes, the wheel and the sdist. The package version comes from the tag (hatch-vcs), so a release pushes no commits.
+
+To depend on a release:
+
+```bash
+uv add "fastapi-jobqueue @ git+https://github.com/cboulanger/fastapi-jobqueue@v0.1.0"
+```
+
+or in `pyproject.toml`: `"fastapi-jobqueue @ git+https://github.com/cboulanger/fastapi-jobqueue@v0.1.0"`. The wheel attached to each release can be used instead of the Git URL.
+
 ## Development
 
 ```bash

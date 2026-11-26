@@ -1,8 +1,10 @@
 name: Test
 
 on:
-  push:
   pull_request:
+  push:
+    branches-ignore: [main]  # main is tested by release.yml before it releases
+  workflow_call:
 
 jobs:
   test:
@@ -13,6 +15,8 @@ jobs:
         python-version: ["3.11", "3.13"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # hatch-vcs derives the version from the tags
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python-version }}

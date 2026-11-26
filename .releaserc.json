@@ -1,0 +1,23 @@
+{
+  "branches": ["main"],
+  "tagFormat": "v${version}",
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "rm -rf dist && SETUPTOOLS_SCM_PRETEND_VERSION=${nextRelease.version} uv build"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          { "path": "dist/*.whl", "label": "Wheel" },
+          { "path": "dist/*.tar.gz", "label": "Source distribution" }
+        ]
+      }
+    ]
+  ]
+}
