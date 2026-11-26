@@ -1,0 +1,33 @@
+[project]
+name = "fastapi-jobqueue"
+version = "0.1.0"
+description = "Resumable long-running jobs for FastAPI apps: submit, monitor (polling, SSE, NDJSON), cancel and resume, across worker processes"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110",
+    "pydantic>=2.5",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.27",
+    "pytest>=8",
+    "anyio>=4",
+    "pyright>=1.1.380",
+    "uvicorn>=0.30",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fastapi_jobqueue"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.pyright]
+include = ["src", "tests"]
+pythonVersion = "3.11"
