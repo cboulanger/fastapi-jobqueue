@@ -32,6 +32,7 @@ from typing import Any, Literal
 from fastapi import APIRouter, FastAPI
 from pydantic import BaseModel, JsonValue, ValidationError
 
+from ._aio import Timeout, wait_or_timeout
 from .auth import JobAuth, JobHooks, Principal, call_hook
 from .errors import (
     InputChanged,
@@ -741,8 +742,8 @@ class JobManager:
         assert self._dispatch_wake is not None
         while True:
             try:
-                await asyncio.wait_for(self._dispatch_wake.wait(), self.poll_interval * 4)
-            except TimeoutError:
+                await wait_or_timeout(self._dispatch_wake.wait(), self.poll_interval * 4)
+            except Timeout:
                 pass
             self._dispatch_wake.clear()
             try:

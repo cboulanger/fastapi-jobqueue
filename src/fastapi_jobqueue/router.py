@@ -19,6 +19,7 @@ from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Requ
 from fastapi.responses import StreamingResponse
 from pydantic import JsonValue
 
+from ._aio import Timeout, wait_or_timeout
 from .auth import Principal
 from .errors import JobQueueError, PermissionDenied, UnknownJobType
 from .models import (
@@ -166,8 +167,8 @@ def create_router(manager: JobManager, **kwargs: Any) -> APIRouter:
                     yield _format(event, ndjson, event.id)
                 while not subscription.overflowed:
                     try:
-                        event = await asyncio.wait_for(subscription.queue.get(), KEEPALIVE_SECONDS)
-                    except TimeoutError:
+                        event = await wait_or_timeout(subscription.queue.get(), KEEPALIVE_SECONDS)
+                    except Timeout:
                         yield _keepalive(ndjson)
                         continue
                     if event.seq <= sent.get(event.job_id, 0):
@@ -230,8 +231,8 @@ def create_router(manager: JobManager, **kwargs: Any) -> APIRouter:
                     return
                 while not subscription.overflowed:
                     try:
-                        event = await asyncio.wait_for(subscription.queue.get(), KEEPALIVE_SECONDS)
-                    except TimeoutError:
+                        event = await wait_or_timeout(subscription.queue.get(), KEEPALIVE_SECONDS)
+                    except Timeout:
                         if await asyncio.to_thread(manager.store.get, job_id) is None:
                             return
                         yield _keepalive(ndjson)

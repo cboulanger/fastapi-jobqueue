@@ -13,6 +13,7 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
+from ._aio import Timeout, wait_or_timeout
 from .models import JobEvent
 from .store import SqliteJobStore
 
@@ -66,8 +67,8 @@ class EventBus:
     async def _run(self) -> None:
         while True:
             try:
-                await asyncio.wait_for(self._wake.wait(), self._poll_interval)
-            except TimeoutError:
+                await wait_or_timeout(self._wake.wait(), self._poll_interval)
+            except Timeout:
                 pass
             self._wake.clear()
             try:
