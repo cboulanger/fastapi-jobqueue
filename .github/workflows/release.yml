@@ -1,0 +1,40 @@
+name: Release
+
+# Every push to main is tested, then semantic-release derives the next version from the
+# Conventional Commit messages since the last release tag (fix: patch, feat: minor, a breaking
+# change: major), creates the tag vX.Y.Z and a GitHub release with the wheel and the sdist.
+# It pushes no commits, so main can stay protected against direct pushes.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write       # tag and release
+      issues: write         # comment on released issues
+      pull-requests: write  # comment on released pull requests
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx --yes -p semantic-release@24.2.3 -p @semantic-release/exec@6.0.3 semantic-release

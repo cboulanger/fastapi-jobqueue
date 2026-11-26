@@ -1,6 +1,6 @@
 [project]
 name = "fastapi-jobqueue"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Resumable long-running jobs for FastAPI apps: submit, monitor (polling, SSE, NDJSON), cancel and resume, across worker processes"
 readme = "README.md"
 license = "MIT"
@@ -21,8 +21,14 @@ dev = [
 ]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+# the version comes from the release tag (vX.Y.Z) that semantic-release creates; the release
+# workflow builds with SETUPTOOLS_SCM_PRETEND_VERSION set to the new version
+source = "vcs"
+fallback-version = "0.0.0"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/fastapi_jobqueue"]
