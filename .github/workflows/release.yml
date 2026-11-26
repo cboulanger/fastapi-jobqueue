@@ -34,6 +34,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Baseline tag for the first release
+        # semantic-release makes a first release 1.0.0; with v0.0.0 on the root commit it is 0.1.0
+        run: |
+          if [ -z "$(git tag -l 'v*')" ]; then
+            git tag v0.0.0 "$(git rev-list --max-parents=0 HEAD | tail -n 1)"
+            git push origin v0.0.0
+          fi
       - name: semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
