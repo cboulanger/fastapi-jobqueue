@@ -174,3 +174,7 @@ uv run pyright
 ```
 
 The tests include several uvicorn worker processes on one store (`tests/test_workers.py`): the concurrency limit, a cancel and events across workers, and a crashed worker whose job another worker resumes.
+
+## License
+
+MIT, see [LICENSE](LICENSE).

@@ -3,6 +3,8 @@ name = "fastapi-jobqueue"
 version = "0.1.0"
 description = "Resumable long-running jobs for FastAPI apps: submit, monitor (polling, SSE, NDJSON), cancel and resume, across worker processes"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.110",
