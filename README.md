@@ -51,7 +51,7 @@ app.include_router(jobs.router(tags=["jobs"]), prefix="/api/jobs")
 
 ### Hooks
 
-Subclass `JobHooks` to map resources to the host's locks and to check a job's input before it is resumed. Each method may be sync or async.
+Subclass `JobHooks` to map resources to the host's locks and to check a job's input before it is resumed, and to clean up after a deleted job. Each method may be sync or async.
 
 ```python
 class EditorHooks(JobHooks):
@@ -69,6 +69,9 @@ class EditorHooks(JobHooks):
 
     def input_changed(self, job):  # before an interrupted job is resumed
         return current_hash(job.params) != job.input_hash
+
+    def deleted(self, job):        # after the job row was deleted (DELETE, delete_all, retention cleanup)
+        remove_files(job.id)
 ```
 
 ## Server jobs

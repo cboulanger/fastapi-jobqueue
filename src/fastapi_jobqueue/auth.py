@@ -59,6 +59,10 @@ class JobHooks:
         """Called once when the job no longer holds its resources: it finished, expired or was deleted."""
         return None
 
+    def deleted(self, job: Job) -> Any:
+        """Called once after a job row was deleted (by `delete`, `delete_all` or the retention cleanup), e.g. to remove files the job produced."""
+        return None
+
     def input_changed(self, job: Job) -> bool | Awaitable[bool]:
         """Called before an interrupted job is resumed; return True if its input changed (compare `job.input_hash`)."""
         return False

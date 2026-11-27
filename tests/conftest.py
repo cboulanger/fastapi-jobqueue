@@ -37,6 +37,7 @@ class RecordingHooks(JobHooks):
         self.held: dict[str, str] = {}
         self.released: list[str] = []
         self.renewed: list[str] = []
+        self.deleted_ids: list[str] = []
         self.changed_inputs: set[str] = set()
 
     def acquire(self, job: Job) -> None:
@@ -49,6 +50,9 @@ class RecordingHooks(JobHooks):
 
     def renew(self, job: Job) -> None:
         self.renewed.append(job.id)
+
+    def deleted(self, job: Job) -> None:
+        self.deleted_ids.append(job.id)
 
     def release(self, job: Job) -> None:
         self.released.append(job.id)
