@@ -12,6 +12,7 @@ from fastapi_jobqueue import (
     JobCancelled,
     JobContext,
     JobManager,
+    JobNotFound,
     LeaseConflict,
     Progress,
     ResourceBusy,
@@ -366,3 +367,28 @@ async def test_job_cancelled_raised_by_a_handler(manager: JobManager) -> None:
     await manager.start()
     job = await manager.submit("gives-up", owner="alice")
     await wait_status(manager, job.id, "cancelled")
+
+
+async def test_deleted_hook_called_on_delete(manager: JobManager, hooks: RecordingHooks) -> None:
+    manager.register_type("review")
+    job = await manager.submit("review", owner="alice")
+    await manager.delete(job.id)
+    assert hooks.deleted_ids == [job.id]
+
+
+async def test_deleted_hook_called_on_retention_cleanup(manager: JobManager, clock: Clock, hooks: RecordingHooks) -> None:
+    manager.register_type("review")
+    await manager.start()
+    job = await manager.submit("review", owner="alice")
+    await manager.claim(job.id, "tab-1")
+    await manager.finish(job.id, "tab-1")
+    assert hooks.deleted_ids == []
+    clock.advance(manager.retention + 1)
+    await wait_for(lambda: _missing(manager, job.id))
+    assert hooks.deleted_ids == [job.id]
+
+
+async def test_deleted_hook_not_called_for_missing_job(manager: JobManager, hooks: RecordingHooks) -> None:
+    with pytest.raises(JobNotFound):
+        await manager.delete("nope")
+    assert hooks.deleted_ids == []

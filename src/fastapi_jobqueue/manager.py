@@ -544,6 +544,7 @@ class JobManager:
             running.task.cancel()
         if job.status not in FINISHED_STATUSES and job.resources:
             await self._release(job)
+        await call_hook(self.hooks.deleted(job))
         logger.info(f"Deleted job {job_id}")
         return job
 
@@ -876,6 +877,7 @@ class JobManager:
             elif job.finished:
                 deleted = await asyncio.to_thread(self.store.delete, job.id)
                 if deleted is not None:
+                    await call_hook(self.hooks.deleted(deleted))
                     logger.info(f"Deleted finished job {job.id}")
 
     async def _lease_expired(self, job: Job, now: float) -> None:
